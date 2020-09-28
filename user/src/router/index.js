@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Index from "../components/Index";
-
+import List from "../components/user/List";
 Vue.use(Router)
 
 export default new Router({
@@ -13,6 +13,10 @@ export default new Router({
     {
       path:'/index',
       component: Index
+    },
+    {
+      path:'/user',
+      component: List
     }
   ]
 })
