@@ -1,0 +1,173 @@
+<template>
+  <div>
+  <el-table :height="300"
+    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    style="width: 100%">
+    <el-table-column
+      label="编号"
+      width="180">
+      <template slot-scope="scope">
+        <span style="margin-left: 10px">{{ scope.row.id }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
+      label="姓名"
+      width="180">
+      <template slot-scope="scope">
+        <el-popover trigger="hover" placement="top">
+          <p>姓名: {{ scope.row.name }}</p>
+          <p>住址: {{ scope.row.address }}</p>
+          <div slot="reference" class="name-wrapper">
+            <el-tag size="medium">{{ scope.row.name }}</el-tag>
+          </div>
+        </el-popover>
+      </template>
+    </el-table-column>
+
+    <el-table-column width="180" label="生日" prop="bir"></el-table-column>
+    <el-table-column width="180" label="性别" prop="sex"></el-table-column>
+    <el-table-column width="180" label="地址" prop="address"></el-table-column>
+    <!--
+          scope.$index:当前行的索引，
+          scope.row：当前行的行对象
+          -->
+    <el-table-column
+      align="right" >
+      <template slot="header" slot-scope="scope">
+        <el-input
+          v-model="search"
+          size="mini"
+          placeholder="输入关键字搜索"
+        style="border: 1px solid dodgerblue "/>
+      </template>
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+
+  <el-button  type="success" size="medium" round
+               style="margin-top: 10px"
+              @click="show = !show">添加
+
+  </el-button>
+    <!--内容过滤动画-->
+    <transition name="el-fade-in-linear">
+      <div v-show="show" class="transition-box" >
+        <el-form ref="form" :model="form" label-width="80px" label-suffix=":">
+
+          <el-form-item label="姓名">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
+
+          <el-form-item label="生日">
+            <el-col :span="11">
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.bir" style="width: 100%;"></el-date-picker>
+            </el-col>
+          </el-form-item>
+
+          <el-form-item label="性别">
+            <el-radio-group v-model="form.sex">
+              <el-radio label="男"></el-radio>
+              <el-radio label="女"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input type="textarea" v-model="form.address" ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit('userForm')">保存信息</el-button>
+            <el-button>取消</el-button>
+          </el-form-item>
+        </el-form>
+
+      </div>
+    </transition>
+  </div>
+
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        tableData: [
+        ],
+        search: '',
+        show:true,
+        form: {
+          name: '',
+          bir:'',
+          sex:'女',
+          address:'',
+        }
+      };
+    },
+    methods: {
+      handleEdit(index, row) {
+        console.log(index, row);
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+      },
+      onSubmit() {
+        /*
+        用Ajax发送post请求
+        参数一：controller层url
+        参数二：具体提交的data(){}里的数据
+        */
+        this.$http.post('http://localhost:8989/user/save', this.form).then(res => {
+          console.log(res.data);
+          if (res.data.status) {
+            this.$message({
+              message: '用户信息添加成功',
+              type: 'success'
+            })
+            // 添加成功后清空表单信息
+            this.form = {sex:'男'};
+            // 隐藏表单
+            this.show = false;
+            //添加完数据后刷新表单
+            this.findAllTableData();
+          } else {
+            this.$message.error(res.data.msg);
+          }
+        })
+
+
+      },
+            /*
+        vue实例初始后，获取后端JSon数据,赋给表单数据，并在页面显示
+        then：成功获取后端传来的数据之后执行
+        res.data:后端响应数据
+         */
+      findAllTableData(){
+        this.$http.get('http://localhost:8989/user/findAll').then(res => {
+          this.tableData = res.data;
+        });
+      },
+
+    },
+    created(){
+      this.findAllTableData();
+    }
+  }
+
+</script>
+
+<style>
+  .transition-box {
+    margin-bottom: 10px;
+    width: 100%;
+    height: 600px;
+    border-radius: 4px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    margin-right: 20px;
+  }
+</style>
