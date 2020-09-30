@@ -64,35 +64,35 @@
 
   <el-button  type="success" size="medium" round
                style="margin-top: 10px"
-              @click="saveUserInfo">添加
-
+              @click="show=!show">添加
   </el-button>
+
     <!--内容过滤动画-->
     <transition name="el-fade-in-linear">
       <div v-show="show" class="transition-box" >
-        <el-form ref="form" :model="form" label-width="80px" label-suffix=":">
+        <el-form hide-required-asterisk :rules="rules" ref="form" :model="form" label-width="80px" label-suffix=":">
 
-          <el-form-item label="姓名">
+          <el-form-item label="姓名" prop="name">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
 
-          <el-form-item label="生日">
+          <el-form-item label="生日" prop="bir">
             <el-col :span="11">
               <el-date-picker type="date" placeholder="选择日期" v-model="form.bir" style="width: 100%;"></el-date-picker>
             </el-col>
           </el-form-item>
 
-          <el-form-item label="性别">
+          <el-form-item label="性别" >
             <el-radio-group v-model="form.sex">
               <el-radio label="男"></el-radio>
               <el-radio label="女"></el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="地址">
+          <el-form-item label="地址" prop="address">
             <el-input type="textarea" v-model="form.address" ></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit('userForm')">保存信息</el-button>
+            <el-button type="primary" @click="onSubmit('form')">保存信息</el-button>
             <el-button @click="saveUserInfo">重置</el-button>
           </el-form-item>
         </el-form>
@@ -102,24 +102,31 @@
   </div>
 
 </template>
+
 <script>
   export default {
     data() {
       return {
         tableData: [],
         search: '',
-        show: true,
+        show: false,
         form: {
           name: '',
           bir: '',
           sex: '女',
           address: '',
-        }
+        },
+        rules: {
+          name: [{required: true, message: '请输入活动名称', trigger: 'blur'}],
+          bir: [{required: true, message: '请输入生日年月', trigger: 'blur'}],
+          address: [{required: true, message: '请输入地址', trigger: 'blur'}],
+        },
       };
     },
     methods: {
       //添加按钮事件
       saveUserInfo(){
+
         this.show="true";  //展示表单
         this.form={sex:'男'}; // 添加完清空表单
       },
@@ -144,7 +151,7 @@
           }
         })
       },
-      onSubmit() {
+      onSubmit(form) {
         /*
         用Ajax发送post请求
         参数一：controller层url
@@ -152,29 +159,37 @@
         */
         this.$http.post('http://localhost:8989/user/saveOrUpdate', this.form).then(res => {
           console.log(res.data);
-          if (res.data.status) {
-            this.$message({
-              message: '用户信息添加成功',
-              type: 'success'
-            })
-            // 添加成功后清空表单信息
-            this.form = {sex: '男'};
-            // 隐藏表单
-            this.show = false;
-            //添加完数据后刷新表单
-            this.findAllTableData();
-          } else {
-            this.$message.error(res.data.msg);
-          }
+          this.$refs[form].validate((valid) => {
+            if (valid) {
+              if (res.data.status) {
+                this.$message({
+                  message: '用户信息添加成功',
+                  type: 'success'
+                })
+                // 添加成功后清空表单信息
+                this.form = {sex: '男'};
+                // 隐藏表单
+                this.show = false;
+                //添加完数据后刷新表单
+                this.findAllTableData();
+              } else {
+                this.$message.error(res.data.msg);
+              }
+            } else {
+              this.$message.error("输入数据不合法");
+              return false;
+            }
+          });
+
         })
 
 
       },
       /*
-  vue实例初始后，获取后端JSon数据,赋给表单数据，并在页面显示
-  then：成功获取后端传来的数据之后执行
-  res.data:后端响应数据
-   */
+        vue实例初始后，获取后端JSon数据,赋给表单数据，并在页面显示
+        then：成功获取后端传来的数据之后执行
+        res.data:后端响应数据
+      */
       findAllTableData() {
         this.$http.get('http://localhost:8989/user/findAll').then(res => {
           this.tableData = res.data;
