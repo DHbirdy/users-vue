@@ -43,18 +43,28 @@
       <template slot-scope="scope">
         <el-button
           size="mini"
-          @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+        <!--Popconfirm 气泡确认框-->
+        <el-popconfirm
+          confirmButtonText='确定'
+          cancelButtonText='取消'
+          icon="el-icon-info"
+          iconColor="blue"
+          title="确定要删除当前用户吗？"
+          @onConfirm="handleDelete(scope.$index, scope.row)"
+        >
+          <el-button size="mini"
+                     type="danger"
+                     slot="reference">删除
+          </el-button>
+        </el-popconfirm>
       </template>
     </el-table-column>
   </el-table>
 
   <el-button  type="success" size="medium" round
                style="margin-top: 10px"
-              @click="show = !show">添加
+              @click="saveUserInfo">添加
 
   </el-button>
     <!--内容过滤动画-->
@@ -83,7 +93,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="onSubmit('userForm')">保存信息</el-button>
-            <el-button>取消</el-button>
+            <el-button @click="saveUserInfo">重置</el-button>
           </el-form-item>
         </el-form>
 
@@ -96,24 +106,43 @@
   export default {
     data() {
       return {
-        tableData: [
-        ],
+        tableData: [],
         search: '',
-        show:true,
+        show: true,
         form: {
           name: '',
-          bir:'',
-          sex:'女',
-          address:'',
+          bir: '',
+          sex: '女',
+          address: '',
         }
       };
     },
     methods: {
+      //添加按钮事件
+      saveUserInfo(){
+        this.show="true";  //展示表单
+        this.form={sex:'男'}; // 添加完清空表单
+      },
       handleEdit(index, row) {
         console.log(index, row);
+        this.show=true;   //展示表单，同添加表单
+        this.form=row;  // 将对应行对象信息赋给表单
       },
       handleDelete(index, row) {
         console.log(index, row);
+        //发送axios异步请求
+        this.$http.get("http://localhost:8989/user/delete?id="+row.id).then(res=>{
+          if (res.data.status) {
+            this.$message({
+              message: '用户信息添加成功',
+              type: 'success'
+            })
+            //删除后刷新数据
+            this.findAllTableData();
+          }else{
+            this.$message.error(res.data.msg);
+          }
+        })
       },
       onSubmit() {
         /*
@@ -121,7 +150,7 @@
         参数一：controller层url
         参数二：具体提交的data(){}里的数据
         */
-        this.$http.post('http://localhost:8989/user/save', this.form).then(res => {
+        this.$http.post('http://localhost:8989/user/saveOrUpdate', this.form).then(res => {
           console.log(res.data);
           if (res.data.status) {
             this.$message({
@@ -129,7 +158,7 @@
               type: 'success'
             })
             // 添加成功后清空表单信息
-            this.form = {sex:'男'};
+            this.form = {sex: '男'};
             // 隐藏表单
             this.show = false;
             //添加完数据后刷新表单
@@ -141,22 +170,22 @@
 
 
       },
-            /*
-        vue实例初始后，获取后端JSon数据,赋给表单数据，并在页面显示
-        then：成功获取后端传来的数据之后执行
-        res.data:后端响应数据
-         */
-      findAllTableData(){
+      /*
+  vue实例初始后，获取后端JSon数据,赋给表单数据，并在页面显示
+  then：成功获取后端传来的数据之后执行
+  res.data:后端响应数据
+   */
+      findAllTableData() {
         this.$http.get('http://localhost:8989/user/findAll').then(res => {
           this.tableData = res.data;
         });
       },
 
     },
-    created(){
+    created() {
       this.findAllTableData();
     }
-  }
+  };
 
 </script>
 
