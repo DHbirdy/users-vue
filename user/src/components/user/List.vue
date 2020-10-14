@@ -62,6 +62,29 @@
     </el-table-column>
   </el-table>
 
+    <el-row :gutter="20" style="margin: 15px 0px">
+      <el-col :span="12" :offset="6">
+        <div class="grid-content bg-purple">
+          <!--分页组件-->
+          <el-pagination
+            layout="prev, pager, next,jumper,total,sizes"
+            background
+            prev-text="上一页"
+            next-text="下一页"
+            :page-size="size"
+            :current-page="pageNow"
+            :page-sizes="[4,6,8,10]"
+            @current-change="findPage"
+            @size-change="findSize"
+            :total="total">
+
+
+          </el-pagination>
+        </div>
+      </el-col>
+    </el-row>
+
+
   <el-button  type="success" size="medium" round
                style="margin-top: 10px"
               @click="show=!show">添加
@@ -78,7 +101,7 @@
 
           <el-form-item label="生日" prop="bir">
             <el-col :span="11">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.bir" style="width: 100%;"></el-date-picker>
+              <el-date-picker value-format="yyyy-MM-dd" type="date" placeholder="选择日期" v-model="form.bir" style="width: 100%;"></el-date-picker>
             </el-col>
           </el-form-item>
 
@@ -116,6 +139,9 @@
           sex: '女',
           address: '',
         },
+        total:0,
+        size:4,
+        pageNow:1,
         rules: {
           name: [{required: true, message: '请输入活动名称', trigger: 'blur'}],
           bir: [{required: true, message: '请输入生日年月', trigger: 'blur'}],
@@ -124,6 +150,16 @@
       };
     },
     methods: {
+
+      findSize(size) { //用来处理每页显示记录发生变化的方法
+        console.log(size);
+        this.size = size;
+        this.findAllTableData(this.page,size);
+      },
+      findPage(page) {//用来处理分页相关方法
+        this.page = page;
+        this.findAllTableData(page, this.size);
+      },
       //添加按钮事件
       saveUserInfo(){
 
@@ -191,10 +227,18 @@
         res.data:后端响应数据
       */
       findAllTableData() {
-        this.$http.get('http://localhost:8989/user/findAll').then(res => {
+        this.$http.get("http://localhost:8989/user/findAll").then(res => {
           this.tableData = res.data;
         });
       },
+      // findAllTableData(page,size) {
+      //   page = page ? page : this.pageNow;
+      //   size = size ? size : this.size;
+      //   this.$http.get("http://localhost:8989/user/findByPage?pageNow="+page+"pageSize="+size).then(res => {
+      //     this.tableData = res.data.users;
+      //     this.total=res.data.total;
+      //   });
+      // },
 
     },
     created() {
