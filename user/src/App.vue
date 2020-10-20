@@ -6,7 +6,7 @@
           <el-menu-item index="/index">主页</el-menu-item>
           <el-menu-item index="/user">用户管理</el-menu-item>
           <el-menu-item index="/msg">处理中心</el-menu-item>
-          <el-menu-item index="/order">订单管理</el-menu-item>
+          <el-menu-item index="/reserve">订单管理</el-menu-item>
         </el-menu>
       </el-header>
       <el-main>

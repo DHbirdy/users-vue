@@ -209,7 +209,7 @@
                 //添加完数据后刷新表单
                 this.findAllTableData();
               } else {
-                this.$message.error(res.data.msg);
+                this.$message.success(res.data.msg);
               }
             } else {
               this.$message.error("输入数据不合法");
