@@ -12,6 +12,8 @@ import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios,axios);
 Vue.prototype.$axios = axios;
+// 设置请求的根路径
+// axios.defaults.baseURL = "http://localhost:8989/"
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false

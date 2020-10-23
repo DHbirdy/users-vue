@@ -2,17 +2,17 @@
   <div>
     <el-table :height="400"
               :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-              style="width: 100%">
+              style="width: 120%">
       <!--<el-table-column-->
       <!--  label="编号"-->
-      <!--  width="100">-->
+      <!--  width="120">-->
       <!--  <template slot-scope="scope">-->
       <!--    <span style="margin-left: 10px">{{ scope.row.id }}</span>-->
       <!--  </template>-->
       <!--</el-table-column>-->
       <el-table-column
         label="姓名"
-        width="100">
+        width="120">
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
             <p>姓名: {{ scope.row.name }}</p>
@@ -24,18 +24,18 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="130" label="身份证号" prop="id"></el-table-column>
-      <el-table-column width="110" label="日期" prop="time"></el-table-column>
-      <el-table-column width="110" label="性别" prop="sex"></el-table-column>
-      <el-table-column width="110" label="航班号" prop="flightNum"></el-table-column>
-      <el-table-column width="110" label="出发地" prop="departure"></el-table-column>
-      <el-table-column width="110" label="目的地" prop="destination"></el-table-column>
+      <el-table-column width="150" label="身份证号" prop="id"></el-table-column>
+      <el-table-column width="150" label="日期" prop="time"></el-table-column>
+      <el-table-column width="150" label="性别" prop="sex"></el-table-column>
+      <el-table-column width="150" label="航班号" prop="flightNum"></el-table-column>
+      <el-table-column width="150" label="出发地" prop="departure"></el-table-column>
+      <el-table-column width="150" label="目的地" prop="destination"></el-table-column>
       <!--
             scope.$index:当前行的索引，
             scope.row：当前行的行对象
             -->
       <el-table-column
-        align="right" >
+         align="right">
         <template slot="header" slot-scope="scope">
           <el-input
             v-model="search"
@@ -44,26 +44,27 @@
             style="border: 1px solid dodgerblue "/>
         </template>
 
-        <!--<template slot-scope="scope">-->
-        <!--  <el-button-->
-        <!--    size="mini"-->
-        <!--    @click="handleEdit(scope.$index, scope.row)">编辑-->
-        <!--  </el-button>-->
-        <!--  &lt;!&ndash;Popconfirm 气泡确认框&ndash;&gt;-->
-        <!--  <el-popconfirm-->
-        <!--    confirmButtonText='确定'-->
-        <!--    cancelButtonText='取消'-->
-        <!--    icon="el-icon-info"-->
-        <!--    iconColor="blue"-->
-        <!--    title="确定要删除当前用户吗？"-->
-        <!--    @onConfirm="handleDelete(scope.$index, scope.row)"-->
-        <!--  >-->
-        <!--    <el-button size="mini"-->
-        <!--               type="danger"-->
-        <!--               slot="reference">删除-->
-        <!--    </el-button>-->
-        <!--  </el-popconfirm>-->
-        <!--</template>-->
+        <template slot-scope="scope">
+          <!--<el-button-->
+          <!--  size="mini"-->
+          <!--  @click="handleEdit(scope.$index, scope.row)">编辑-->
+          <!--</el-button>-->
+
+          <!--Popconfirm 气泡确认框-->
+          <el-popconfirm
+            confirmButtonText='确定'
+            cancelButtonText='取消'
+            icon="el-icon-info"
+            iconColor="blue"
+            title="确定要删除当前订单吗？"
+            @onConfirm="handleDelete(scope.$index, scope.row)"
+          >
+            <el-button size="mini"
+                       type="danger"
+                       slot="reference">删除
+            </el-button>
+          </el-popconfirm>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -144,7 +145,7 @@
         // size:4,
         // pageNow:1,
         rules: {
-          name: [{required: true, message: '请输入活动名称', trigger: 'blur'}],
+          name: [{required: true, message: '请输入姓名', trigger: 'blur'}],
           time: [{required: true, message: '请输入出发日期', trigger: 'blur'}],
           departure: [{required: true, message: '请输入出发地', trigger: 'blur'}],
           destination: [{required: true, message: '请输入目的地', trigger: 'blur'}],
@@ -167,56 +168,59 @@
       resetForm(formName){
         this.$refs[formName].resetFields();
       },
-      // handleEdit(index, row) {
-      //   console.log(index, row);
-      //   this.show=true;   //展示表单，同添加表单
-      //   this.form=row;  // 将对应行对象信息赋给表单
-      // },
-      // handleDelete(index, row) {
-      //   console.log(index, row);
-      //   //发送axios异步请求
-      //   this.$http.get("http://localhost:8989/user/delete?id="+row.id).then(res=>{
-      //     if (res.data.status) {
-      //       this.$message({
-      //         message: '用户信息添加成功',
-      //         type: 'success'
-      //       })
-      //       //删除后刷新数据
-      //       this.findAllTableData();
-      //     }else{
-      //       this.$message.error(res.data.msg);
-      //     }
-      //   })
-      // },
+      handleEdit(index, row) {
+        console.log(index, row);
+        this.show=true;   //展示表单，同添加表单
+        this.form=row;  // 将对应行对象信息赋给表单
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+        // 发送axios异步请求
+        this.$http.get("http://localhost:8989/reserve/deleteOrder?name="+row.name).then(res=>{
+          if (res.data.status) {
+            this.$message({
+              message: '订单信息删除成功',
+              type: 'success'
+            })
+            //删除后刷新数据
+            this.findAllTableData();
+          }else{
+            this.$message.error(res.data.msg);
+          }
+        })
+      },
       onSubmit(form) {
         /*
         用Ajax发送post请求
         参数一：controller层url
         参数二：具体提交的data(){}里的数据
         */
-        this.$http.post('http://localhost:8989/reserve/saveOrder', this.form).then(res => {
-          console.log(res.data);
-          this.$refs[form].validate((valid) => {
-            if (valid) {
-              if (res.data.status) {
 
-                // 添加成功后清空表单信息
-                this.$message.success("订单信息保存成功")
-                this.form = {sex: '男'};
-                // 隐藏表单
+        this.$refs[form].validate((valid) => {
+          if (valid) {
+            this.$http.post('http://localhost:8989/reserve/saveOrder', this.form).then(res => {
+              console.log(res)
+              // debugger
+              if (res.data.status) {
+                this.$message({
+                  message: '订单信息提交成功',
+                  type: 'success'
+                })
+                //关闭表单
                 this.show = false;
-                //添加完数据后刷新表单
-                // this.findAllTableData();
+                // debugger
+                //删除后刷新数据
+                this.findAllTableData();
               } else {
                 this.$message.error(res.data.msg);
               }
-            } else {
-              this.$message.error("输入数据不合法");
-              return false;
-            }
-          });
+            });
 
-        })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
 
 
       },

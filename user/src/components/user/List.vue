@@ -177,7 +177,7 @@
         this.$http.get("http://localhost:8989/user/delete?id="+row.id).then(res=>{
           if (res.data.status) {
             this.$message({
-              message: '用户信息添加成功',
+              message: '用户信息删除成功',
               type: 'success'
             })
             //删除后刷新数据
@@ -193,31 +193,33 @@
         参数一：controller层url
         参数二：具体提交的data(){}里的数据
         */
-        this.$http.post('http://localhost:8989/user/saveOrUpdate', this.form).then(res => {
-          console.log(res.data);
-          this.$refs[form].validate((valid) => {
-            if (valid) {
+
+
+        this.$refs[form].validate((valid) => {
+          if (valid) {
+            this.$http.post('http://localhost:8989/user/saveOrUpdate', this.form).then(res => {
+              console.log(res)
+              // debugger
               if (res.data.status) {
                 this.$message({
-                  message: '用户信息添加成功',
+                  message: '用户信息删除成功',
                   type: 'success'
                 })
-                // 添加成功后清空表单信息
-                this.form = {sex: '男'};
-                // 隐藏表单
+                //关闭表单
                 this.show = false;
-                //添加完数据后刷新表单
+                // debugger
+                //删除后刷新数据
                 this.findAllTableData();
               } else {
-                this.$message.success(res.data.msg);
+                this.$message.error(res.data.msg);
               }
-            } else {
-              this.$message.error("输入数据不合法");
-              return false;
-            }
-          });
+            });
 
-        })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
 
 
       },
@@ -227,6 +229,7 @@
         res.data:后端响应数据
       */
       findAllTableData() {
+        // debugger
         this.$http.get("http://localhost:8989/user/findAll").then(res => {
           this.tableData = res.data;
         });
