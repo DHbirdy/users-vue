@@ -143,7 +143,7 @@
         size:4,
         pageNow:1,
         rules: {
-          name: [{required: true, message: '请输入活动名称', trigger: 'blur'}],
+          name: [{required: true, message: '请输入姓名', trigger: 'blur'}],
           bir: [{required: true, message: '请输入生日年月', trigger: 'blur'}],
           address: [{required: true, message: '请输入地址', trigger: 'blur'}],
         },
@@ -201,10 +201,7 @@
               console.log(res)
               // debugger
               if (res.data.status) {
-                this.$message({
-                  message: '用户信息删除成功',
-                  type: 'success'
-                })
+                this.$message.success(res.data.msg)
                 //关闭表单
                 this.show = false;
                 // debugger
